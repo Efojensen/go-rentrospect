@@ -12,7 +12,7 @@ func WriteErrorResponse(w http.ResponseWriter, statusCode int, err error) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
-	apiError := types.Errors{
+	apiError := types.CustomError{
 		Error:   err.Error(),
 	}
 
