@@ -3,7 +3,11 @@
         "godotenv",
         "jackc",
         "joho",
+        "Objectread",
+        "objectstorage",
         "pgxpool",
-        "rentrospect"
+        "Preauthenticated",
+        "rentrospect",
+        "webp"
     ]
 }

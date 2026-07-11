@@ -34,6 +34,12 @@ type Asset struct {
 	Location     string           `json:"location"`
 	Description  string           `json:"description"`
 	PricingUnit  PricingUnitEnum  `json:"pricingUnit"`
+	PrimaryImage int              `json:"primaryImage"`
 	Availability AvailabilityEnum `json:"availability"`
 	Condition    ConditionEnum    `json:"conditionEnum"`
+}
+
+type AssetImage struct {
+	FileBytes   []byte
+	ContentType string
 }
