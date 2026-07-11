@@ -49,6 +49,16 @@ func (a *AssetHandler) addAssetQuery(asset types.Asset, assetImages []types.Asse
 		tx.Rollback(ctx)
 	}()
 
+	defer func() {
+		if err != nil {
+			for _, obj := range objectNames {
+				if delErr := a.objectStore.DeleteObject(obj); delErr != nil {
+					log.Printf("failed to delete orphaned object %q: %v", obj, delErr)
+				}
+			}
+		}
+	}()
+
 	var createdAssetID string
 	insertQuery := `
 		INSERT INTO assets
@@ -65,7 +75,6 @@ func (a *AssetHandler) addAssetQuery(asset types.Asset, assetImages []types.Asse
 	if err != nil {
 		return err
 	}
-
 
 	for idx, objName := range objectNames {
 		isPrimary := false

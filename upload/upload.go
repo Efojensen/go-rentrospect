@@ -98,3 +98,21 @@ func (s *Storage) UploadFromBytes(objectName string, data []byte) (string, error
 
 	return s.GetTempUrl(objectName, 24)
 }
+
+func (s *Storage) DeleteObject(objName string) error {
+	ctx, timeout := context.WithTimeout(context.Background(), 6 * time.Second)
+
+	defer timeout()
+
+	req := objectstorage.DeleteObjectRequest{
+		NamespaceName: &s.namespace,
+		BucketName: &s.bucket,
+		ObjectName: &objName,
+	}
+
+	if _, err := s.client.DeleteObject(ctx, req); err != nil {
+		return fmt.Errorf("delete object %q: %w", objName, err)
+	}
+
+	return nil
+}
