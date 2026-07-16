@@ -24,6 +24,6 @@ func (r *RenterHandler) addRenterQuery(renter types.Renter) error {
 		return err
 	}
 
-	log.Println(commandTag.RowsAffected(), "rows affected")
+	log.Println(commandTag.RowsAffected(), "rows affected in \"users\" table")
 	return nil
 }
