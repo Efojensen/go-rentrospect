@@ -1,6 +1,6 @@
 package types
 
-type Renter struct {
+type Client struct {
 	Name        string `json:"name"`
 	Email       string `json:"email"`
 	Password    string `json:"password"`
@@ -9,6 +9,6 @@ type Renter struct {
 }
 
 type Vendor struct {
-	Renter
+	Client
 	NatId string `json:"natId"`
 }

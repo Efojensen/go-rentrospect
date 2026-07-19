@@ -1,4 +1,4 @@
-package renters
+package clients
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/EfoJensen/go-rentrospect/types"
 )
 
-func (r *RenterHandler) addRenterQuery(renter types.Renter) error {
+func (c *ClientHandler) addClientQuery(client types.Client) error {
 	ctx, timeout := context.WithTimeout(context.Background(), 5 * time.Second)
 	defer timeout()
 
@@ -17,8 +17,8 @@ func (r *RenterHandler) addRenterQuery(renter types.Renter) error {
 		VALUES ($1, $2, $3, $4, $5)
 	`
 
-	commandTag, err := r.store.Exec(ctx, insertQuery, renter.Name, renter.Email, renter.PhoneNumber,
-		renter.Password, renter.ProfilePic)
+	commandTag, err := c.store.Exec(ctx, insertQuery, client.Name, client.Email, client.PhoneNumber,
+		client.Password, client.ProfilePic)
 
 	if err != nil {
 		return err
