@@ -9,5 +9,11 @@
         "Preauthenticated",
         "rentrospect",
         "webp"
-    ]
+    ],
+    "material-icon-theme.folders.associations": {
+    "cash": "finance",
+    "payouts": "finance",
+    "payments": "ci",
+    "wallets": "generator"
+}
 }

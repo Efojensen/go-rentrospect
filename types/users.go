@@ -12,3 +12,7 @@ type Vendor struct {
 	Client
 	NatId string `json:"natId"`
 }
+type ClientBal struct {
+	Name         string `json:"name"`
+	AvailableBal int    `json:"availableBal"`
+}
