@@ -8,12 +8,15 @@ import (
 	"github.com/EfoJensen/go-rentrospect/types"
 )
 
-func WriteErrorResponse(w http.ResponseWriter, statusCode int, err error) {
+func WriteErrorResponse(w http.ResponseWriter, statusCode int, err error, msg ...string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(statusCode)
 
+	code := types.ErrorCodeEnum(statusCode)
+
 	apiError := types.CustomError{
-		Error:   err.Error(),
+		Message: &msg[0],
+		Code:    code.ToString(),
 	}
 
 	if err := json.NewEncoder(w).Encode(apiError); err != nil {

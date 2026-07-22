@@ -14,6 +14,7 @@
     "cash": "finance",
     "payouts": "finance",
     "payments": "ci",
-    "wallets": "generator"
+    "wallets": "generator",
+    "httpClient": "Quasar"
 }
 }

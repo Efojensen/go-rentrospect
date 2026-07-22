@@ -5,13 +5,14 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/EfoJensen/go-rentrospect/httpClient"
 	"github.com/EfoJensen/go-rentrospect/types"
 	"github.com/EfoJensen/go-rentrospect/utils"
 	"github.com/jackc/pgx/v5"
 )
 
 func (p *PaymentHandler) InitiatePayment(w http.ResponseWriter, r *http.Request) {
-	var paymentReq types.PaymentReq
+	var paymentReq types.IncomingPaymentReq
 
 	if err := json.NewDecoder(r.Body).Decode(&paymentReq); err != nil {
 		utils.WriteErrorResponse(w, http.StatusBadRequest, err)
@@ -32,6 +33,36 @@ func (p *PaymentHandler) InitiatePayment(w http.ResponseWriter, r *http.Request)
 
 	if paymentReq.Amount > clientBal.AvailableBal {
 		utils.WriteErrorResponse(w, http.StatusForbidden, errors.New("insufficient escrow funds"))
+		return
+	}
+
+	vendorEmail, err := p.getVendorEmailFromAsset(paymentReq)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			utils.WriteErrorResponse(w, http.StatusNotFound, err)
+			return
+		}
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	walletId := r.Header.Get("w_id")
+
+	if walletId == "" {
+		utils.WriteErrorResponse(w, http.StatusNotFound, err)
+		return
+	}
+
+	paymentSession, err := httpClient.SendPayment(vendorEmail, paymentReq)
+
+	if err != nil {
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err := p.storePaymentQuery(*clientBal, paymentReq, *paymentSession); err != nil {
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
 

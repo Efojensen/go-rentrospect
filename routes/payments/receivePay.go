@@ -9,7 +9,7 @@ import (
 )
 
 func (p *PaymentHandler) ReceiveClientPay(w http.ResponseWriter, r *http.Request) {
-	var payment types.PaymentReq
+	var payment types.IncomingPaymentReq
 
 	if err := json.NewDecoder(r.Body).Decode(&payment); err != nil {
 		utils.WriteErrorResponse(w, http.StatusBadRequest, err)
