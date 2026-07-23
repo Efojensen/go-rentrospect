@@ -88,3 +88,17 @@ const (
 func (b BookingStatusEnum) String() string {
 	return [...]string{"pending", "scanned", "expired"}[b]
 }
+
+type WalletTxnEnum int
+
+const (
+	TopUp WalletTxnEnum = iota
+	Withdrawal
+	EscrowHold
+	EscrowRelease
+	Refund
+)
+
+func (w WalletTxnEnum) String() string {
+	return [...]string{"top_up", "withdrawal", "escrow_hold", "escrow_release", "refund"}[w]
+}

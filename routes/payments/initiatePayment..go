@@ -61,7 +61,9 @@ func (p *PaymentHandler) InitiatePayment(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := p.storePaymentQuery(*clientBal, paymentReq, *paymentSession); err != nil {
+	err = p.storePaymentQueries(*clientBal, paymentReq, *paymentSession)
+
+	if err != nil {
 		utils.WriteErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}

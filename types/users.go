@@ -14,6 +14,7 @@ type Vendor struct {
 }
 type ClientBal struct {
 	Name         string `json:"name"`
+	TotalBal     int    `json:"totalBal"`
 	EscrowBal    int    `json:"escrowBal"`
 	AvailableBal int    `json:"availableBal"`
 }
