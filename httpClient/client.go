@@ -38,7 +38,7 @@ func SendPayment(vendorMail string, paymentReq types.IncomingPaymentReq) (*types
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Add("X-Api-Key", os.Getenv("X-API-KEY"))
+	req.Header.Add("X-Api-Key", os.Getenv("X_API_KEY"))
 
 	res, err := httpClient.Do(req)
 

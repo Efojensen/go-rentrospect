@@ -36,7 +36,7 @@ func (server *ApiServer) Run() error {
 
 	_, err := identity.NewIdentityClientWithConfigurationProvider(config)
 	if err != nil {
-		log.Fatal("Config error:", err)
+		log.Fatal("Config error: ", err)
 	} else {
 		log.Println("config load status: ✅")
 	}
@@ -60,6 +60,6 @@ func (server *ApiServer) Run() error {
 	assetHandler := assets.NewAssetHandler(server.Db, storage)
 	assetHandler.RegisterAssetRoutes(mux)
 
-	log.Println("Server running on http://localhost" + server.Port)
+	log.Println("server running on http://localhost" + server.Port + " ✅")
 	return http.ListenAndServe(server.Port, mux)
 }

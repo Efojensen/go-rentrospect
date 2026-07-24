@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -20,7 +21,19 @@ func main() {
 	dbPool, err := pgxpool.New(context.Background(), databaseUrl)
 
 	if err != nil {
-		log.Fatal("Db err:", err)
+		log.Fatal("Db err: ", err)
+	}
+
+	defer dbPool.Close()
+
+	var greeting string
+	err = dbPool.QueryRow(context.Background(), "select 'pg database status: ✅'").Scan(&greeting)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+		os.Exit(1)
+	} else {
+		log.Println("database status: ✅")
 	}
 
 	api := api.NewApiServer(":4000", dbPool)
