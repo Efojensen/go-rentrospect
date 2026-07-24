@@ -6,6 +6,9 @@ import (
 	"os"
 
 	"github.com/EfoJensen/go-rentrospect/routes/assets"
+	"github.com/EfoJensen/go-rentrospect/routes/clients"
+	"github.com/EfoJensen/go-rentrospect/routes/payments"
+	"github.com/EfoJensen/go-rentrospect/routes/vendors"
 	"github.com/EfoJensen/go-rentrospect/upload"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/oracle/oci-go-sdk/v65/common"
@@ -44,6 +47,15 @@ func (server *ApiServer) Run() error {
 	} else {
 		log.Println("object storage init status: ✅")
 	}
+
+	clientHandler := clients.NewClientHandler(server.Db)
+	clientHandler.RegisterClientRoutes(mux)
+
+	vendorHandler := vendors.NewVendorHandler(server.Db)
+	vendorHandler.RegisterVendorRoutes(mux)
+
+	paymentHandler := payments.NewPaymentHandler(server.Db)
+	paymentHandler.RegisterPaymentRoutes(mux)
 
 	assetHandler := assets.NewAssetHandler(server.Db, storage)
 	assetHandler.RegisterAssetRoutes(mux)

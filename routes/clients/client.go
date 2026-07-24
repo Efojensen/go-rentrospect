@@ -17,6 +17,6 @@ func NewClientHandler(store *pgxpool.Pool) *ClientHandler {
 	}
 }
 
-func (c *ClientHandler) RegisterUserRoutes(h *http.ServeMux) {
+func (c *ClientHandler) RegisterClientRoutes(h *http.ServeMux) {
 	h.HandleFunc("/client/signUp", middleware.EnableCORS(c.ClientSignUp))
 }
