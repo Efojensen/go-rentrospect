@@ -24,7 +24,7 @@ func (c *ClientHandler) addClientQuery(client types.Client) error {
 	}()
 
 	insertQuery := `
-		INSERT INTO users (name, email, phone_number, password, profile_pic)
+		INSERT INTO users (name, email, phone_number, pwd_hash, profile_pic)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING user_id
 	`

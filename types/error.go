@@ -20,9 +20,22 @@ const (
 	InternalServerError ErrorCodeEnum = 500
 )
 
+var errorCodes = map[ErrorCodeEnum]string{
+    Forbidden:           "FORBIDDEN",
+    NotFound:            "NOT_FOUND",
+    BadRequest:          "BAD_REQUEST",
+    BadGateway:          "BAD_GATEWAY",
+    Unauthorized:        "UNAUTHORIZED",
+    GatewayTimeout:      "GATEWAY_TIMEOUT",
+    TooManyRequests:     "TOO_MANY_REQUESTS",
+    MethodNotAllowed:    "METHOD_NOT_ALLOWED",
+    ServiceUnavailable:  "SERVICE_UNAVAILABLE",
+    InternalServerError: "INTERNAL_SERVER_ERROR",
+}
+
 func (e ErrorCodeEnum) ToString() string {
-	return [...]string{
-		"BAD_REQUEST", "UNAUTHORIZED", "FORBIDDEN", "NOT_FOUND", "METHOD_NOT_ALLOWED", "TOO_MANY_REQUESTS",
-		"INTERNAL_SERVER_ERROR", "BAD_GATEWAY", "SERVICE_UNAVAILABLE", "GATEWAY_TIMEOUT",
-	}[e]
+    if s, ok := errorCodes[e]; ok {
+        return s
+    }
+    return "UNKNOWN_ERROR"
 }
