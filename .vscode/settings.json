@@ -5,6 +5,7 @@
         "joho",
         "Objectread",
         "objectstorage",
+        "pgtype",
         "pgxpool",
         "Preauthenticated",
         "rentrospect",

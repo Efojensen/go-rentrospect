@@ -15,12 +15,17 @@ func WriteErrorResponse(w http.ResponseWriter, statusCode int, err error, msg ..
 	code := types.ErrorCodeEnum(statusCode)
 
 	apiError := types.CustomError{
-		Message: &msg[0],
 		Code:    code.ToString(),
 	}
 
-	if err := json.NewEncoder(w).Encode(apiError); err != nil {
-		WriteErrorResponse(w, http.StatusInternalServerError, err)
+	if len(msg) > 0 {
+		apiError.Message = &msg[0]
+	}
+
+	err = json.NewEncoder(w).Encode(apiError)
+
+	if err != nil {
+		log.Println("failed to encode error response: ", err)
 		return
 	}
 	log.Println(err)

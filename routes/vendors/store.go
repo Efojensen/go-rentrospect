@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/EfoJensen/go-rentrospect/types"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 func (v *VendorHandler) storeVendorQuery(vendor types.Vendor) error {
@@ -14,7 +15,7 @@ func (v *VendorHandler) storeVendorQuery(vendor types.Vendor) error {
 	defer cancel()
 
 	insertQuery := `
-		INSERT INTO users (name, email, phone_number, password, profile_pic)
+		INSERT INTO users (name, email, phone_number, pwd_hash, profile_pic)
 		VALUES ($1, $2, $3, $4, $5)
 		RETURNING user_id
 	`
@@ -41,18 +42,40 @@ func (v *VendorHandler) storeVendorQuery(vendor types.Vendor) error {
 	}
 
 	vendorInsertQuery := `
-		INSERT INTO vendors (user_id, national_id)
-		VALUES ($1, $2)
+		INSERT INTO vendors
+		(user_id, national_id, location, deliveries, meetups, calls, op_hours)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
 
-	commandTag, err := tx.Exec(ctx, vendorInsertQuery, user_id, vendor.NatId)
+	operationalHours := pgtype.Range[time.Time]{
+		Lower:     vendor.StartTime,
+		Upper:     vendor.EndTime,
+		LowerType: pgtype.Inclusive,
+		UpperType: pgtype.Exclusive,
+		Valid:     true,
+	}
+
+	commandTag, err := tx.Exec(ctx, vendorInsertQuery, user_id, vendor.NatId,
+		vendor.Location, vendor.Deliveries, vendor.Meetups, vendor.Calls, operationalHours,
+	)
 
 	if err != nil {
 		log.Println("error writing to \"vendors\" table: %w", err)
 		return err
 	}
 
-	if err = tx.Commit(ctx); err != nil {
+	insertWalletQuery := `INSERT INTO wallets (user_id) VALUES ($1)`
+
+	conn, err := tx.Exec(ctx, insertWalletQuery, user_id)
+
+	if err != nil {
+		log.Println(conn.String())
+		return err
+	}
+
+	err = tx.Commit(ctx)
+
+	if err != nil {
 		return err
 	}
 

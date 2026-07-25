@@ -12,10 +12,10 @@ const (
 type ConditionEnum int
 
 const (
-	New ConditionEnum = iota
-	Good
-	Fair
-	Poor
+	BrandNew ConditionEnum = iota
+	BarelyUsed
+	Standard
+	FairlyUsed
 	Damaged
 )
 

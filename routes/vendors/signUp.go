@@ -12,7 +12,7 @@ func (v *VendorHandler) VendorSignUp(w http.ResponseWriter, r *http.Request) {
 	var vendorBody types.Vendor
 
 	if err := json.NewDecoder(r.Body).Decode(&vendorBody); err != nil {
-		utils.WriteErrorResponse(w, http.StatusBadRequest, err)
+		utils.WriteErrorResponse(w, http.StatusBadRequest, err, "invalid vendor body")
 		return
 	}
 
@@ -20,4 +20,6 @@ func (v *VendorHandler) VendorSignUp(w http.ResponseWriter, r *http.Request) {
 		utils.WriteErrorResponse(w, http.StatusInternalServerError, err)
 		return
 	}
+
+	utils.WriteResponse(w, http.StatusCreated, vendorBody)
 }
