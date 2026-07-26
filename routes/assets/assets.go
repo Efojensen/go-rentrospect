@@ -21,5 +21,5 @@ func NewAssetHandler(store *pgxpool.Pool, objStore *upload.Storage) *AssetHandle
 }
 
 func (a *AssetHandler) RegisterAssetRoutes(h *http.ServeMux) {
-	h.HandleFunc("/assets", middleware.EnableCORS(a.UploadAsset))
+	h.HandleFunc("/assets/upload", middleware.EnableCORS(a.UploadAsset))
 }

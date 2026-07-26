@@ -68,8 +68,8 @@ func (a *AssetHandler) addAssetQuery(asset types.Asset, assetImages []types.Asse
 		RETURNING asset_id;
 	`
 	err = tx.QueryRow(ctx, insertQuery, asset.Vendor, asset.Category, asset.Name,
-		asset.Availability, asset.Description, asset.Rate, asset.PricingUnit,
-		asset.Location, asset.Condition,
+		asset.Availability.String(), asset.Description, asset.Rate, asset.PricingUnit.String(),
+		asset.Location, asset.Condition.String(),
 	).Scan(&createdAssetID)
 
 	if err != nil {

@@ -19,13 +19,13 @@ func (a *AssetHandler) UploadAsset(w http.ResponseWriter, r *http.Request) {
 
 	assetJson := r.FormValue("assetDetails")
 	if assetJson == "" {
-		utils.WriteErrorResponse(w, http.StatusBadRequest, errors.New("missing asset data"))
+		utils.WriteErrorResponse(w, http.StatusBadRequest, errors.New("missing asset data"), "missing asset data")
 		return
 	}
 
 	var assetInfo types.Asset
 	if err := json.Unmarshal([]byte(assetJson), &assetInfo); err != nil {
-		utils.WriteErrorResponse(w, http.StatusBadRequest, errors.New("invalid asset json"))
+		utils.WriteErrorResponse(w, http.StatusBadRequest, errors.New("invalid asset json"), "invalid asset json")
 		return
 	}
 
