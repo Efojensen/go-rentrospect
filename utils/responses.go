@@ -22,9 +22,9 @@ func WriteErrorResponse(w http.ResponseWriter, statusCode int, err error, msg ..
 		apiError.Message = &msg[0]
 	}
 
-	err = json.NewEncoder(w).Encode(apiError)
+	jsonErr := json.NewEncoder(w).Encode(apiError)
 
-	if err != nil {
+	if jsonErr != nil {
 		log.Println("failed to encode error response: ", err)
 		return
 	}
