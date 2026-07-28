@@ -13,7 +13,7 @@ func (p *PaymentHandler) storePaymentQueries(
 	payReq types.IncomingPaymentReq,
 	payDetails types.PaymentSessionRes,
 ) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 7*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 14*time.Second)
 
 	defer cancel()
 

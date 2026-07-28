@@ -9,13 +9,14 @@ import (
 	"time"
 
 	"github.com/EfoJensen/go-rentrospect/types"
+	"github.com/EfoJensen/go-rentrospect/utils"
 )
 
 var httpClient = &http.Client{
 	Timeout: time.Second * 5,
 	Transport: &http.Transport{
-		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: 20,
+		MaxIdleConns:        100,
 		IdleConnTimeout:     30 * time.Second,
 	},
 }
@@ -26,7 +27,7 @@ func MakeEscrowPayment(paymentReq types.IncomingPaymentReq) (*types.PaymentSessi
 		Description: fmt.Sprintf("escrow payment of GHS:%d", paymentReq.Amount),
 	}
 
-	payloadBytes, err := json.Marshal(&payload)
+	payloadBytes, err := utils.GenerateIdempotencyKey(payload)
 
 	if err != nil {
 		return nil, err
