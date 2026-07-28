@@ -3,6 +3,7 @@ package httpClient
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"time"
@@ -19,10 +20,10 @@ var httpClient = &http.Client{
 	},
 }
 
-func SendPayment(vendorMail string, paymentReq types.IncomingPaymentReq) (*types.PaymentSession, error) {
+func MakeEscrowPayment(paymentReq types.IncomingPaymentReq) (*types.PaymentSessionRes, error) {
 	payload := types.PaymentSession{
 		Amount:    paymentReq.Amount,
-		Recipient: vendorMail,
+		Description: fmt.Sprintf("escrow payment of GHS:%d", paymentReq.Amount),
 	}
 
 	payloadBytes, err := json.Marshal(&payload)
@@ -31,7 +32,7 @@ func SendPayment(vendorMail string, paymentReq types.IncomingPaymentReq) (*types
 		return nil, err
 	}
 
-	req, err := http.NewRequest(http.MethodPost, os.Getenv("PAY_VENDOR_URL"), bytes.NewBuffer(payloadBytes))
+	req, err := http.NewRequest(http.MethodPost, os.Getenv("PAY_ESCROW_URL"), bytes.NewBuffer(payloadBytes))
 
 	if err != nil {
 		return nil, err
@@ -48,10 +49,10 @@ func SendPayment(vendorMail string, paymentReq types.IncomingPaymentReq) (*types
 
 	defer res.Body.Close()
 
-	var paymentSession types.PaymentSession
-	if err = json.NewDecoder(res.Body).Decode(&paymentSession); err != nil {
+	var paymentSessionRes types.PaymentSessionRes
+	if err = json.NewDecoder(res.Body).Decode(&paymentSessionRes); err != nil {
 		return nil, err
 	}
 
-	return &paymentSession, nil
+	return &paymentSessionRes, nil
 }

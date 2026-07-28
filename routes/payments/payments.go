@@ -18,5 +18,5 @@ func NewPaymentHandler(store *pgxpool.Pool) *PaymentHandler {
 }
 
 func (p *PaymentHandler) RegisterPaymentRoutes(h *http.ServeMux) {
-	h.HandleFunc("/payment", middleware.EnableCORS(p.ReceiveClientPay))
+	h.HandleFunc("/payment", middleware.EnableCORS(p.InitiatePayment))
 }

@@ -11,7 +11,7 @@ import (
 func (p *PaymentHandler) storePaymentQueries(
 	clientBal types.ClientBal,
 	payReq types.IncomingPaymentReq,
-	payDetails types.PaymentSession,
+	payDetails types.PaymentSessionRes,
 ) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 7*time.Second)
 
@@ -48,7 +48,9 @@ func (p *PaymentHandler) storePaymentQueries(
 		VALUES ($1, $2, $3, $4)
 	`
 
-	conn, err := tx.Exec(ctx, insertPaymentQuery, wallet_id, payDetails.Reference, payReq.Amount, types.Success.String())
+	conn, err := tx.Exec(ctx, insertPaymentQuery, wallet_id, payDetails.Data.Reference,
+		payReq.Amount, types.Success.String(),
+	)
 
 	if err != nil {
 		log.Println(conn.String())
@@ -64,7 +66,7 @@ func (p *PaymentHandler) storePaymentQueries(
 
 	var rentalTransactionId string
 	err = tx.QueryRow(ctx, insertRentalQuery, payReq.UserId, payReq.AssetId,
-		payReq.StartDate, payReq.EndDate, types.PendingV2, payReq.ConsultationMode.String(),
+		payReq.StartDate,payReq.EndDate, types.PendingV2.String(), payReq.ConsultationMode.String(),
 		payReq.Amount, types.Holding.String(),
 	).Scan(&rentalTransactionId)
 

@@ -36,7 +36,7 @@ func (p *PaymentHandler) InitiatePayment(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	vendorEmail, err := p.getVendorEmailFromAsset(paymentReq)
+	_, err = p.getVendorEmailFromAsset(paymentReq)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -47,14 +47,7 @@ func (p *PaymentHandler) InitiatePayment(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	walletId := r.Header.Get("w_id")
-
-	if walletId == "" {
-		utils.WriteErrorResponse(w, http.StatusNotFound, err)
-		return
-	}
-
-	paymentSession, err := httpClient.SendPayment(vendorEmail, paymentReq)
+	paymentSession, err := httpClient.MakeEscrowPayment(paymentReq)
 
 	if err != nil {
 		utils.WriteErrorResponse(w, http.StatusInternalServerError, err)

@@ -1,11 +1,10 @@
 package types
 
-import "time"
-
-type Split struct {
-	Amount    int    `json:"amount"`
-	Recipient string `json:"recipient"`
-}
+import (
+	"encoding/json"
+	"fmt"
+	"time"
+)
 
 type IncomingPaymentReq struct {
 	Amount           int                  `json:"amount"`
@@ -17,12 +16,11 @@ type IncomingPaymentReq struct {
 }
 
 type PaymentSession struct {
-	Amount    int    `json:"amount"`
-	Recipient string `json:"recipient"`
-	// Our own reference
-	Reference string `json:"reference"`
+	Amount int `json:"amount"`
 	// Arbitrary JSON string, returned unchanged on the session and in webhooks
 	Metadata string `json:"metadata"`
+	// Our own reference
+	Reference string `json:"reference"`
 	// Description: Note shown to customer
 	Description    string `json:"description"`
 	IdempotencyKey string `json:"idempotencyKey"`
@@ -45,7 +43,7 @@ type RentalStatusEnum int
 const (
 	PendingV2 RentalStatusEnum = iota
 	Active
-	Completed
+	Completed_
 	Cancelled
 )
 
@@ -101,4 +99,55 @@ const (
 
 func (w WalletTxnEnum) String() string {
 	return [...]string{"top_up", "withdrawal", "escrow_hold", "escrow_release", "refund"}[w]
+}
+
+type PaymentSessionRes struct {
+	Success bool `json:"success"`
+	Data    struct {
+		Id          string            `json:"id"`
+		Status      SessionStatusEnum `json:"status"`
+		Amount      int               `json:"amount"`
+		Currency    string            `json:"currency"`
+		Reference   string            `json:"reference"`
+		ExpiresAt   string            `json:"expiresAt"`
+		CreatedAt   string            `json:"createdAt"`
+		CheckoutUrl string            `json:"checkoutUrl"`
+	} `json:"data"`
+}
+
+type SessionStatusEnum int
+
+const (
+	Pending_ SessionStatusEnum = iota
+	Completed_V
+	Expired_
+	Cancelled_
+	Refunded_
+)
+
+var sessionStatusMap = map[string]SessionStatusEnum{
+	"PENDING":   Pending_,
+	"EXPIRED":   Expired_,
+	"REFUNDED":  Refunded_,
+	"CANCELLED": Cancelled_,
+	"COMPLETED": Completed_V,
+}
+
+func (ss *SessionStatusEnum) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+
+	value, ok := sessionStatusMap[s]
+	if !ok {
+		return fmt.Errorf("invalid session status: %q", s)
+	}
+
+	*ss = value
+	return nil
+}
+
+func (s SessionStatusEnum) String() string {
+	return [...]string{"PENDING", "EXPIRED", "REFUNDED", "CANCELLED", "COMPLETED"}[s]
 }
