@@ -4,6 +4,8 @@ go 1.26.4
 
 require github.com/jackc/pgx/v5 v5.10.0
 
+require github.com/shopspring/decimal v1.4.0
+
 require (
 	github.com/gofrs/flock v0.10.0 // indirect
 	github.com/oracle/oci-go-sdk/v65 v65.119.0

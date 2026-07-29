@@ -21,8 +21,8 @@ func (p *PaymentHandler) checkAvailableBalQuery(userId string) (*types.ClientBal
 	`
 
 	var name string
-	var totalBalance int
-	var escrowBalance int
+	var totalBalance int64
+	var escrowBalance int64
 	err := p.store.QueryRow(ctx, checkBalQuery, userId).Scan(&name, &totalBalance, &escrowBalance)
 
 	if err != nil {

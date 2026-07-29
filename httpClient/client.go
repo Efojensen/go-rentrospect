@@ -13,7 +13,7 @@ import (
 )
 
 var httpClient = &http.Client{
-	Timeout: time.Second * 5,
+	Timeout: time.Second * 8,
 	Transport: &http.Transport{
 		MaxIdleConnsPerHost: 20,
 		MaxIdleConns:        100,

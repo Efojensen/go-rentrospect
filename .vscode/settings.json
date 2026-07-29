@@ -9,6 +9,7 @@
         "pgxpool",
         "Preauthenticated",
         "rentrospect",
+        "shopspring",
         "webp"
     ],
     "material-icon-theme.folders.associations": {

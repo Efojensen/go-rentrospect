@@ -36,17 +36,6 @@ func (p *PaymentHandler) InitiatePayment(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_, err = p.getVendorEmailFromAsset(paymentReq)
-
-	if err != nil {
-		if err == pgx.ErrNoRows {
-			utils.WriteErrorResponse(w, http.StatusNotFound, err)
-			return
-		}
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, err)
-		return
-	}
-
 	paymentSession, err := httpClient.MakeEscrowPayment(paymentReq)
 
 	if err != nil {
@@ -61,5 +50,5 @@ func (p *PaymentHandler) InitiatePayment(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	utils.WriteResponse(w, http.StatusAccepted, clientBal)
+	utils.WriteResponse(w, http.StatusAccepted, paymentSession)
 }

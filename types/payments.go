@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type IncomingPaymentReq struct {
-	Amount           int                  `json:"amount"`
+	Amount           int64                `json:"amount"`
 	UserId           string               `json:"userId"`
 	EndDate          time.Time            `json:"endDate"`
 	AssetId          string               `json:"assetId"`
@@ -16,7 +18,7 @@ type IncomingPaymentReq struct {
 }
 
 type PaymentSession struct {
-	Amount int `json:"amount"`
+	Amount int64 `json:"amount"`
 	// Arbitrary JSON string, returned unchanged on the session and in webhooks
 	Metadata string `json:"metadata"`
 	// Our own reference
@@ -105,8 +107,8 @@ type PaymentSessionRes struct {
 	Success bool `json:"success"`
 	Data    struct {
 		Id          string            `json:"id"`
+		Amount      decimal.Decimal   `json:"amount"`
 		Status      SessionStatusEnum `json:"status"`
-		Amount      int               `json:"amount"`
 		Currency    string            `json:"currency"`
 		Reference   string            `json:"reference"`
 		ExpiresAt   string            `json:"expiresAt"`

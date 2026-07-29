@@ -2,6 +2,7 @@ package payments
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -20,8 +21,7 @@ func (p *PaymentHandler) storePaymentQueries(
 	tx, err := p.store.Begin(ctx)
 
 	if err != nil {
-		log.Println("failed to begin transaction: %w", err)
-		return err
+		return fmt.Errorf("failed to begin transaction: %w", err)
 	}
 
 	defer func() {
@@ -29,14 +29,14 @@ func (p *PaymentHandler) storePaymentQueries(
 	}()
 
 	insertWalletQuery := `
-		UPDATE wallets SET total_balance = $1, escrow_balance= $2
-		WHERE user_id = $3
+		UPDATE wallets SET escrow_balance = escrow_balance - $1
+		WHERE user_id = $2
 		RETURNING wallet_id
 	`
 
 	var wallet_id string
-	err = tx.QueryRow(ctx, insertWalletQuery, clientBal.AvailableBal-payReq.Amount,
-		clientBal.EscrowBal+payReq.Amount, payReq.UserId).Scan(&wallet_id)
+	err = tx.QueryRow(ctx, insertWalletQuery, clientBal.EscrowBal+payReq.Amount,
+		payReq.UserId).Scan(&wallet_id)
 
 	if err != nil {
 		return err
@@ -49,7 +49,7 @@ func (p *PaymentHandler) storePaymentQueries(
 	`
 
 	conn, err := tx.Exec(ctx, insertPaymentQuery, wallet_id, payDetails.Data.Reference,
-		payReq.Amount, types.Success.String(),
+		payReq.Amount, types.Pending.String(),
 	)
 
 	if err != nil {
@@ -66,7 +66,7 @@ func (p *PaymentHandler) storePaymentQueries(
 
 	var rentalTransactionId string
 	err = tx.QueryRow(ctx, insertRentalQuery, payReq.UserId, payReq.AssetId,
-		payReq.StartDate,payReq.EndDate, types.PendingV2.String(), payReq.ConsultationMode.String(),
+		payReq.StartDate, payReq.EndDate, types.PendingV2.String(), payReq.ConsultationMode.String(),
 		payReq.Amount, types.Holding.String(),
 	).Scan(&rentalTransactionId)
 
@@ -80,9 +80,13 @@ func (p *PaymentHandler) storePaymentQueries(
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
 
+	newEscrow := clientBal.EscrowBal + payReq.Amount
+	availableAfter := clientBal.TotalBal - newEscrow
+
 	conn, err = tx.Exec(ctx, insertRentalLogQuery,
-		wallet_id, types.TopUp.String(), payReq.Amount, rentalTransactionId, clientBal.TotalBal,
-		clientBal.TotalBal-payReq.Amount, clientBal.EscrowBal+payReq.Amount,
+		wallet_id, types.Holding.String(), payReq.Amount, rentalTransactionId,
+		clientBal.TotalBal, availableAfter, newEscrow,
+		fmt.Sprintf("escrow payment of GHS:%d", payReq.Amount),
 	)
 
 	if err != nil {
