@@ -3,18 +3,15 @@ package payments
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/EfoJensen/go-rentrospect/types"
 )
 
-func (p *PaymentHandler) storePaymentQueries(
-	clientBal types.ClientBal,
-	payReq types.IncomingPaymentReq,
+func (p *PaymentHandler) storeEscrowPaymentQueries(payReq types.IncomingPaymentReq,
 	payDetails types.PaymentSessionRes,
 ) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 14*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 6*time.Second)
 
 	defer cancel()
 
@@ -25,18 +22,33 @@ func (p *PaymentHandler) storePaymentQueries(
 	}
 
 	defer func() {
-		tx.Rollback(ctx)
+		_ = tx.Rollback(ctx)
 	}()
 
-	insertWalletQuery := `
-		UPDATE wallets SET escrow_balance = escrow_balance - $1
+	var walletId string
+	var totalBalance int64
+	var escrowBalance int64
+
+	markForUpdateQuery := `SELECT total_balance, escrow_balance, wallet_id
+		FROM wallets WHERE user_id = $1 FOR UPDATE`
+
+	err = tx.QueryRow(ctx, markForUpdateQuery, payReq.UserId).Scan(&totalBalance, &escrowBalance, &walletId)
+
+	if err != nil {
+		return err
+	}
+
+	if totalBalance-escrowBalance < payReq.Amount {
+		return fmt.Errorf("insufficient funds for escrow transaction")
+	}
+
+	updateWalletEscrowQuery := `
+		UPDATE wallets SET escrow_balance = escrow_balance + $1
 		WHERE user_id = $2
-		RETURNING wallet_id
+		RETURNING total_balance, escrow_balance
 	`
 
-	var wallet_id string
-	err = tx.QueryRow(ctx, insertWalletQuery, clientBal.EscrowBal+payReq.Amount,
-		payReq.UserId).Scan(&wallet_id)
+	err = tx.QueryRow(ctx, updateWalletEscrowQuery, payReq.Amount, payReq.UserId).Scan(&totalBalance, &escrowBalance)
 
 	if err != nil {
 		return err
@@ -48,13 +60,12 @@ func (p *PaymentHandler) storePaymentQueries(
 		VALUES ($1, $2, $3, $4)
 	`
 
-	conn, err := tx.Exec(ctx, insertPaymentQuery, wallet_id, payDetails.Data.Reference,
+	_, err = tx.Exec(ctx, insertPaymentQuery, walletId, payDetails.Data.Reference,
 		payReq.Amount, types.Pending.String(),
 	)
 
 	if err != nil {
-		log.Println(conn.String())
-		return err
+		return fmt.Errorf("insert payment: %w", err)
 	}
 
 	insertRentalQuery := `
@@ -80,27 +91,23 @@ func (p *PaymentHandler) storePaymentQueries(
 		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
 
-	newEscrow := clientBal.EscrowBal + payReq.Amount
-	availableAfter := clientBal.TotalBal - newEscrow
+	availableAfter := totalBalance - escrowBalance
 
-	conn, err = tx.Exec(ctx, insertRentalLogQuery,
-		wallet_id, types.Holding.String(), payReq.Amount, rentalTransactionId,
-		clientBal.TotalBal, availableAfter, newEscrow,
+	_, err = tx.Exec(ctx, insertRentalLogQuery, walletId, types.EscrowHold.String(),
+		payReq.Amount, rentalTransactionId, totalBalance, availableAfter, escrowBalance,
 		fmt.Sprintf("escrow payment of GHS:%d", payReq.Amount),
 	)
 
 	if err != nil {
-		log.Println(conn.String())
-		return err
+		return fmt.Errorf("insert wallet_transactions: %w", err)
 	}
 
 	insertBookingCodeQuery := `INSERT INTO booking_codes (transaction_id) VALUES ($1)`
 
-	conn, err = tx.Exec(ctx, insertBookingCodeQuery, rentalTransactionId)
+	_, err = tx.Exec(ctx, insertBookingCodeQuery, rentalTransactionId)
 
 	if err != nil {
-		log.Println(conn.String())
-		return err
+		return fmt.Errorf("insert booking_codes: %w", err)
 	}
 
 	if err = tx.Commit(ctx); err != nil {

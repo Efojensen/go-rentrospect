@@ -21,9 +21,3 @@ type Vendor struct {
 	Deliveries bool      `json:"deliveries"`
 }
 
-type ClientBal struct {
-	Name         string `json:"name"`
-	TotalBal     int64  `json:"totalBal"`
-	EscrowBal    int64  `json:"escrowBal"`
-	AvailableBal int64  `json:"availableBal"`
-}

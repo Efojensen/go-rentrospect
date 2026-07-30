@@ -2,13 +2,11 @@ package payments
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"github.com/EfoJensen/go-rentrospect/httpClient"
 	"github.com/EfoJensen/go-rentrospect/types"
 	"github.com/EfoJensen/go-rentrospect/utils"
-	"github.com/jackc/pgx/v5"
 )
 
 func (p *PaymentHandler) InitiatePayment(w http.ResponseWriter, r *http.Request) {
@@ -20,21 +18,6 @@ func (p *PaymentHandler) InitiatePayment(w http.ResponseWriter, r *http.Request)
 	}
 
 	defer r.Body.Close()
-	clientBal, err := p.checkAvailableBalQuery(paymentReq.UserId)
-
-	if err != nil {
-		if err == pgx.ErrNoRows {
-			utils.WriteErrorResponse(w, http.StatusNotFound, err)
-			return
-		}
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, err)
-		return
-	}
-
-	if paymentReq.Amount > clientBal.AvailableBal {
-		utils.WriteErrorResponse(w, http.StatusForbidden, errors.New("insufficient escrow funds"))
-		return
-	}
 
 	paymentSession, err := httpClient.MakeEscrowPayment(paymentReq)
 
@@ -43,7 +26,7 @@ func (p *PaymentHandler) InitiatePayment(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = p.storePaymentQueries(*clientBal, paymentReq, *paymentSession)
+	err = p.storeEscrowPaymentQueries(paymentReq, *paymentSession)
 
 	if err != nil {
 		utils.WriteErrorResponse(w, http.StatusInternalServerError, err)
