@@ -111,8 +111,8 @@ type PaymentSessionRes struct {
 		Status      SessionStatusEnum `json:"status"`
 		Currency    string            `json:"currency"`
 		Reference   string            `json:"reference"`
-		ExpiresAt   string            `json:"expiresAt"`
-		CreatedAt   string            `json:"createdAt"`
+		ExpiresAt   time.Time         `json:"expiresAt"`
+		CreatedAt   time.Time         `json:"createdAt"`
 		CheckoutUrl string            `json:"checkoutUrl"`
 	} `json:"data"`
 }

@@ -102,9 +102,9 @@ func (p *PaymentHandler) storeEscrowPaymentQueries(payReq types.IncomingPaymentR
 		return fmt.Errorf("insert wallet_transactions: %w", err)
 	}
 
-	insertBookingCodeQuery := `INSERT INTO booking_codes (transaction_id) VALUES ($1)`
+	insertBookingCodeQuery := `INSERT INTO booking_codes (transaction_id, code, expires_at) VALUES ($1, $2, $3)`
 
-	_, err = tx.Exec(ctx, insertBookingCodeQuery, rentalTransactionId)
+	_, err = tx.Exec(ctx, insertBookingCodeQuery, rentalTransactionId, payDetails.Data.Id, payDetails.Data.ExpiresAt)
 
 	if err != nil {
 		return fmt.Errorf("insert booking_codes: %w", err)

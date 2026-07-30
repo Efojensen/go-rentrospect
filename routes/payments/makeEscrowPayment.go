@@ -9,7 +9,7 @@ import (
 	"github.com/EfoJensen/go-rentrospect/utils"
 )
 
-func (p *PaymentHandler) InitiatePayment(w http.ResponseWriter, r *http.Request) {
+func (p *PaymentHandler) MakeEscrowPayment(w http.ResponseWriter, r *http.Request) {
 	var paymentReq types.IncomingPaymentReq
 
 	if err := json.NewDecoder(r.Body).Decode(&paymentReq); err != nil {
