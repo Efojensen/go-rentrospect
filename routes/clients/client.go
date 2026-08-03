@@ -19,4 +19,5 @@ func NewClientHandler(store *pgxpool.Pool) *ClientHandler {
 
 func (c *ClientHandler) RegisterClientRoutes(h *http.ServeMux) {
 	h.HandleFunc("/client/signUp", middleware.EnableCORS(c.ClientSignUp))
+	h.HandleFunc("/client/getCategory", middleware.EnableCORS(c.getCategorizedAssets))
 }

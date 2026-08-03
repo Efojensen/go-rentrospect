@@ -142,6 +142,17 @@ type Asset struct {
 	Availability AvailabilityEnum `json:"availability"`
 }
 
+type PureAsset struct {
+	Rate         int    `json:"rate"`
+	Name         string `json:"name"`
+	Vendor       int    `json:"vendor"`
+	Category     string `json:"category"`
+	Location     string `json:"location"`
+	Condition    string `json:"condition"`
+	PricingUnit  string `json:"pricingUnit"`
+	PrimaryImage string `json:"primaryImage"`
+}
+
 type AssetImage struct {
 	FileBytes   []byte
 	ContentType string
