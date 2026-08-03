@@ -48,7 +48,7 @@ func (server *ApiServer) Run() error {
 		log.Println("object storage init status: ✅")
 	}
 
-	clientHandler := clients.NewClientHandler(server.Db)
+	clientHandler := clients.NewClientHandler(server.Db, storage)
 	clientHandler.RegisterClientRoutes(mux)
 
 	vendorHandler := vendors.NewVendorHandler(server.Db)

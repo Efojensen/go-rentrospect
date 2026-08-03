@@ -1,5 +1,6 @@
 {
     "cSpell.words": [
+        "dgraph",
         "godotenv",
         "jackc",
         "joho",
@@ -9,6 +10,7 @@
         "pgxpool",
         "Preauthenticated",
         "rentrospect",
+        "ristretto",
         "shopspring",
         "webp"
     ],
