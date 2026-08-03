@@ -27,6 +27,17 @@ func (c *ClientHandler) getCategorizedAssets(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
+	for i, asset := range returnedAssets {
+		url, err := c.cache.GetURL(asset.PrimaryImage)
+
+		if err != nil {
+			log.Printf("failed to generate url for index %d", i)
+			url = ""
+		}
+
+		returnedAssets[i].PrimaryImage = url
+	}
+
 	if err = json.NewEncoder(w).Encode(returnedAssets); err != nil {
 		utils.WriteErrorResponse(w, http.StatusInternalServerError, err)
 		return
