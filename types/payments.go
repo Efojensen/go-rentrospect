@@ -18,14 +18,14 @@ type IncomingPaymentReq struct {
 }
 
 type PaymentSession struct {
-	Amount int64 `json:"amount"`
+	Amount         int64  `json:"amount"`
+	IdempotencyKey string `json:"-"` // excluded from JSON
 	// Arbitrary JSON string, returned unchanged on the session and in webhooks
 	Metadata string `json:"metadata"`
 	// Our own reference
 	Reference string `json:"reference"`
 	// Description: Note shown to customer
-	Description    string `json:"description"`
-	IdempotencyKey string `json:"idempotencyKey"`
+	Description string `json:"description"`
 }
 
 type PaymentStatusEnum int

@@ -24,7 +24,7 @@ var httpClient = &http.Client{
 func MakeEscrowPayment(paymentReq types.IncomingPaymentReq) (*types.PaymentSessionRes, error) {
 	payload := types.PaymentSession{
 		Amount:    paymentReq.Amount,
-		Description: fmt.Sprintf("escrow payment of GHS:%d", paymentReq.Amount),
+		Description: fmt.Sprintf("Escrow payment of GH₵%d", paymentReq.Amount),
 	}
 
 	payloadBytes, err := utils.GenerateIdempotencyKey(payload)
@@ -40,7 +40,7 @@ func MakeEscrowPayment(paymentReq types.IncomingPaymentReq) (*types.PaymentSessi
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Add("X-Api-Key", os.Getenv("X_API_KEY"))
+	req.Header.Add("X-Api-Key", os.Getenv("X_LIVE_API_KEY"))
 
 	res, err := httpClient.Do(req)
 
