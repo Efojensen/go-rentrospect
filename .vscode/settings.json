@@ -4,6 +4,7 @@
         "godotenv",
         "jackc",
         "joho",
+        "livemode",
         "Objectread",
         "objectstorage",
         "pgtype",
@@ -19,6 +20,7 @@
     "payouts": "finance",
     "payments": "ci",
     "wallets": "generator",
-    "httpClient": "Quasar"
+    "httpClient": "Quasar",
+    "webhooks": "hook"
 }
 }
