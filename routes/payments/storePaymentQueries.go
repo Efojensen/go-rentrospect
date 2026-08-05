@@ -54,20 +54,6 @@ func (p *PaymentHandler) storeEscrowPaymentQueries(payReq types.IncomingPaymentR
 		return err
 	}
 
-	insertPaymentQuery := `
-		INSERT INTO payments
-		(wallet_id, aza_ref, amount, status)
-		VALUES ($1, $2, $3, $4)
-	`
-
-	_, err = tx.Exec(ctx, insertPaymentQuery, walletId, payDetails.Data.Reference,
-		payReq.Amount, types.Pending.String(),
-	)
-
-	if err != nil {
-		return fmt.Errorf("insert payment: %w", err)
-	}
-
 	insertRentalQuery := `
 		INSERT INTO rental_transactions
 		(renter_id, asset_id, start_date, end_date, status, consultation_mode, price, escrow_status)
@@ -83,6 +69,20 @@ func (p *PaymentHandler) storeEscrowPaymentQueries(payReq types.IncomingPaymentR
 
 	if err != nil {
 		return err
+	}
+
+	insertPaymentQuery := `
+		INSERT INTO payments
+		(wallet_id, aza_ref, amount, transaction_id, status)
+		VALUES ($1, $2, $3, $4, $5)
+	`
+
+	_, err = tx.Exec(ctx, insertPaymentQuery, walletId, payDetails.Data.Reference,
+		payReq.Amount, rentalTransactionId, types.Pending.String(),
+	)
+
+	if err != nil {
+		return fmt.Errorf("insert payment: %w", err)
 	}
 
 	insertRentalLogQuery := `
